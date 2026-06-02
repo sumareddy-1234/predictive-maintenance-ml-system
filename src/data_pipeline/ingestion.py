@@ -1,6 +1,4 @@
-from ucimlrepo import fetch_ucirepo
 import pandas as pd
-from pathlib import Path
 
 EXPECTED_COLUMNS = [
     "UDI",
@@ -20,53 +18,9 @@ EXPECTED_COLUMNS = [
 ]
 
 
-def download_dataset():
-    """
-    Downloads AI4I dataset and saves it to data/raw/ai4i2020.csv
-    """
-
-    dataset = fetch_ucirepo(id=601)
-
-    X = dataset.data.features.copy()
-    y = dataset.data.targets.copy()
-
-    df = pd.concat([X, y], axis=1)
-
-    # Add missing columns if UCI API version excludes them
-    if "UDI" not in df.columns:
-        df.insert(0, "UDI", range(1, len(df) + 1))
-
-    if "Product ID" not in df.columns:
-        df.insert(1, "Product ID", [f"P{i}" for i in range(1, len(df) + 1)])
-
-    # Rename columns to match assignment exactly
-    rename_map = {
-        "Air temperature": "Air temperature [K]",
-        "Process temperature": "Process temperature [K]",
-        "Rotational speed": "Rotational speed [rpm]",
-        "Torque": "Torque [Nm]",
-        "Tool wear": "Tool wear [min]"
-    }
-
-    df = df.rename(columns=rename_map)
-
-    # Reorder columns
-    df = df[EXPECTED_COLUMNS]
-
-    Path("data/raw").mkdir(parents=True, exist_ok=True)
-
-    save_path = "data/raw/ai4i2020.csv"
-    df.to_csv(save_path, index=False)
-
-    print("Dataset saved successfully!")
-    print("Shape:", df.shape)
-
-    return df
-
-
 def load_raw_data(filepath: str) -> pd.DataFrame:
     """
-    Load dataset and validate schema.
+    Load raw dataset and validate required columns.
     """
 
     df = pd.read_csv(filepath)
@@ -86,30 +40,25 @@ def load_raw_data(filepath: str) -> pd.DataFrame:
 
 def get_data_summary(df: pd.DataFrame) -> dict:
     """
-    Generate summary statistics required by assignment.
+    Generate dataset summary statistics.
     """
+
+    numeric_cols = df.select_dtypes(include="number").columns
 
     numeric_stats = {}
 
-    numeric_columns = df.select_dtypes(include="number").columns
-
-    for col in numeric_columns:
+    for col in numeric_cols:
         numeric_stats[col] = {
-            "mean": round(float(df[col].mean()), 4),
-            "std": round(float(df[col].std()), 4),
-            "min": round(float(df[col].min()), 4),
-            "max": round(float(df[col].max()), 4),
+            "mean": round(df[col].mean(), 4),
+            "std": round(df[col].std(), 4),
+            "min": round(df[col].min(), 4),
+            "max": round(df[col].max(), 4)
         }
 
-    missing_values = (
-        df.isnull()
-        .sum()
-    )
-
     missing_values = {
-        col: int(count)
-        for col, count in missing_values.items()
-        if count > 0
+        col: int(df[col].isna().sum())
+        for col in df.columns
+        if df[col].isna().sum() > 0
     }
 
     class_distribution = (
@@ -126,7 +75,3 @@ def get_data_summary(df: pd.DataFrame) -> dict:
         "class_distribution": class_distribution,
         "numeric_stats": numeric_stats
     }
-
-
-if __name__ == "__main__":
-    download_dataset()
