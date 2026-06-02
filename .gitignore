@@ -1,0 +1,73 @@
+# Python
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+
+venv/
+env/
+ENV/
+
+# Jupyter
+
+.ipynb_checkpoints/
+
+# VS Code
+
+.vscode/
+
+# PyCharm
+
+.idea/
+
+# OS Files
+
+.DS_Store
+Thumbs.db
+
+# Logs
+
+*.log
+
+# Build
+
+build/
+dist/
+*.egg-info/
+
+# Model Files
+
+*.pkl
+*.joblib
+*.h5
+*.model
+
+# Data Files (keep folders only)
+
+data/raw/*.csv
+data/processed/*.csv
+data/features/*.csv
+
+# Temporary files
+
+temp/
+tmp/
+
+# Coverage
+
+.coverage
+htmlcov/
+
+# pytest
+
+.pytest_cache/
+
+# SHAP outputs
+
+shap_plots/
+
+# Drift reports
+
+reports/
