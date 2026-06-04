@@ -2,6 +2,27 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 
 
+def train_random_forest(
+    X_train,
+    y_train,
+    n_estimators=200,
+    max_depth=10,
+    random_state=42
+):
+
+    model = RandomForestClassifier(
+        n_estimators=n_estimators,
+        max_depth=max_depth,
+        class_weight="balanced",
+        random_state=random_state,
+        n_jobs=-1
+    )
+
+    model.fit(X_train, y_train)
+
+    return model
+
+
 def tune_random_forest(
     X_train,
     y_train
