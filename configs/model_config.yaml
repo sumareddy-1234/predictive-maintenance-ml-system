@@ -1,0 +1,31 @@
+model:
+  best_model_name: "voting"
+  optimal_threshold: 0.45
+
+
+  features_used:
+    - "Type"
+    - "Air temperature [K]"
+    - "Process temperature [K]"
+    - "Rotational speed [rpm]"
+    - "Torque [Nm]"
+    - "Tool wear [min]"
+    - "power_watts"
+    - "temp_delta_K"
+    - "tool_wear_torque_interaction"
+    - "tool_wear_rpm_interaction"
+    - "strain_index"
+
+training:
+  random_state: 42
+  test_size: 0.2
+  val_size: 0.1
+  class_imbalance_strategy: "SMOTE"
+
+evaluation:
+  primary_metric: "f1_weighted"
+  cost_matrix:
+    TP: -500
+    TN: 0
+    FP: 200
+    FN: 5000

@@ -3,15 +3,10 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score
-)
 
-
+# -------------------------
+# 1. Logistic Regression
+# -------------------------
 def train_logistic_regression(
     X_train,
     y_train,
@@ -22,7 +17,8 @@ def train_logistic_regression(
     model = LogisticRegression(
         class_weight=class_weight,
         max_iter=1000,
-        random_state=random_state
+        random_state=random_state,
+        solver="liblinear"
     )
 
     model.fit(X_train, y_train)
@@ -30,6 +26,9 @@ def train_logistic_regression(
     return model
 
 
+# -------------------------
+# 2. Decision Tree
+# -------------------------
 def train_decision_tree(
     X_train,
     y_train,
@@ -48,6 +47,9 @@ def train_decision_tree(
     return model
 
 
+# -------------------------
+# 3. Predictions (STRICT FORMAT)
+# -------------------------
 def get_baseline_predictions(
     model,
     X,
@@ -56,9 +58,7 @@ def get_baseline_predictions(
 
     y_proba = model.predict_proba(X)[:, 1]
 
-    y_pred = (
-        y_proba >= threshold
-    ).astype(int)
+    y_pred = (y_proba >= threshold).astype(int)
 
     return {
         "y_pred": y_pred,
@@ -66,39 +66,8 @@ def get_baseline_predictions(
     }
 
 
-def evaluate_model(
-    model,
-    X,
-    y
-):
-
-    predictions = get_baseline_predictions(
-        model,
-        X
-    )
-
-    y_pred = predictions["y_pred"]
-    y_proba = predictions["y_proba"]
-
-    return {
-        "accuracy": round(
-            accuracy_score(y, y_pred),
-            4
-        ),
-        "precision": round(
-            precision_score(y, y_pred),
-            4
-        ),
-        "recall": round(
-            recall_score(y, y_pred),
-            4
-        ),
-        "f1_score": round(
-            f1_score(y, y_pred),
-            4
-        ),
-        "roc_auc": round(
-            roc_auc_score(y, y_proba),
-            4
-        )
-    }
+def evaluate_model(model, X, y):
+    y_pred = model.predict(X)
+    y_proba = model.predict_proba(X)[:, 1]
+    from src.evaluation.metrics import compute_classification_report
+    return compute_classification_report(y, y_pred, y_proba)

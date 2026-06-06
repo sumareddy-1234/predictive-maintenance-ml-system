@@ -1,0 +1,9 @@
+data:
+  raw_data_path: "data/raw/ai4i2020.csv"
+  processed_data_path: "data/processed/cleaned.csv"
+  feature_data_path: "data/features/engineered_features.csv"
+
+drift_monitoring:
+  psi_threshold_moderate: 0.1
+  psi_threshold_significant: 0.25
+  monitoring_window_days: 7

@@ -1,77 +1,94 @@
-import joblib
-from pathlib import Path
+import os
+import pickle
+from typing import Any, List
 
 
-def save_model(
-    model,
-    filepath: str
-):
+# -----------------------------
+# 1. Generic Save Function
+# -----------------------------
+def save_object(obj: Any, filepath: str):
 
-    Path(filepath).parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
-    joblib.dump(
-        model,
-        filepath
-    )
+    with open(filepath, "wb") as f:
+        pickle.dump(obj, f)
 
 
-def load_model(
-    filepath: str
-):
+# -----------------------------
+# 2. Generic Load Function
+# -----------------------------
+def load_object(filepath: str):
 
-    return joblib.load(
-        filepath
-    )
+    if not os.path.exists(filepath):
+        raise FileNotFoundError(f"File not found: {filepath}")
 
-
-def save_scaler(
-    scaler,
-    filepath: str
-):
-
-    Path(filepath).parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
-
-    joblib.dump(
-        scaler,
-        filepath
-    )
+    with open(filepath, "rb") as f:
+        return pickle.load(f)
 
 
-def load_scaler(
-    filepath: str
-):
+# -----------------------------
+# 3. Model Save / Load
+# -----------------------------
+def save_model(model, filepath: str):
 
-    return joblib.load(
-        filepath
-    )
-
-
-def save_feature_list(
-    features,
-    filepath: str
-):
-
-    Path(filepath).parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
-
-    joblib.dump(
-        features,
-        filepath
-    )
+    save_object(model, filepath)
 
 
-def load_feature_list(
-    filepath: str
-):
+def load_model(filepath: str):
 
-    return joblib.load(
-        filepath
-    )
+    return load_object(filepath)
+
+
+# -----------------------------
+# 4. Scaler Save / Load
+# -----------------------------
+def save_scaler(scaler, filepath: str):
+
+    save_object(scaler, filepath)
+
+
+def load_scaler(filepath: str):
+
+    return load_object(filepath)
+
+
+# -----------------------------
+# 5. Feature List Save / Load
+# -----------------------------
+def save_feature_list(features: List[str], filepath: str):
+
+    if not isinstance(features, list):
+        raise ValueError("features must be a list of column names")
+
+    save_object(features, filepath)
+
+
+def load_feature_list(filepath: str):
+
+    return load_object(filepath)
+
+
+# -----------------------------
+# 6. Artifact Manager (Optional Helper)
+# -----------------------------
+class ArtifactManager:
+
+    def __init__(self, base_path: str = "artifacts"):
+
+        self.base_path = base_path
+
+        os.makedirs(base_path, exist_ok=True)
+
+    def model_path(self, filename: str):
+        return os.path.join(self.base_path, filename)
+
+    def save(self, obj, filename: str):
+
+        path = self.model_path(filename)
+        save_object(obj, path)
+        return path
+
+    def load(self, filename: str):
+
+        path = self.model_path(filename)
+        return load_object(path)
